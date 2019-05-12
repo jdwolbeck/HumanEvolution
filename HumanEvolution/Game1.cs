@@ -183,6 +183,20 @@ public class Game1 : Game
                 tick = true;
             }
 
+            //for (int i = 0; i < _gameData.Sprites.Count(); i++)
+            //{
+            //    if (_gameData.Sprites[i].IsAlive)
+            //    {
+            //        if (_gameData.Sprites[i].Color == Color.Black)
+            //        {
+            //            _gameData.Sprites[i].IsAlive = false;
+            //            SpawnScenerioTestObjs();
+
+            //            break;
+            //        }
+            //    }
+            //}
+
             //During a tick do all creature processing
             if (tick)
             {
@@ -293,6 +307,7 @@ public class Game1 : Game
                         _gameData.Sprites[i].Direction.X < 0 && _gameData.Sprites[i].Direction.Y < 0)
                     {
                         _gameData.Sprites[i].Rotation = (((float)Math.PI * 2) - _gameData.Sprites[i].Rotation);
+                        _gameData.Sprites[i].Color = Color.Black;
                     }
                 }
                 if (_gameData.Sprites[i].Bounds.Top <= 0 || _gameData.Sprites[i].Bounds.Bottom >= _gameData.Settings.WorldSize)
@@ -304,6 +319,7 @@ public class Game1 : Game
                         _gameData.Sprites[i].Direction.X < 0 && _gameData.Sprites[i].Direction.Y < 0)
                     {
                         _gameData.Sprites[i].Rotation = (((float)Math.PI) - _gameData.Sprites[i].Rotation);
+                        _gameData.Sprites[i].Color = Color.Black;
                     }
                 }
 
@@ -655,18 +671,19 @@ public class Game1 : Game
         SpriteBase sprite;
 
         sprite = new Truck();
-        sprite.Scale = 2.5f;
+        sprite.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+        sprite.Scale = (float)(_rand.NextDouble() * 3);
         sprite.Color = Color.Aqua;
-        sprite.ScreenDepth = 1f; //Only used when you specify FrontToBack or BackToFront on the SpriteBatch
+        sprite.ScreenDepth = 1f;
+
         if (sprite.Scale < 0.5f)
             sprite.Scale = 0.5f;
 
         sprite.IsAlive = true;
         sprite.WorldSize = _gameData.Settings.WorldSize;
-        sprite.Texture = BuildSampleImage(_graphics.GraphicsDevice);
-        sprite.Speed = 100f;
-        sprite.Rotation = MathHelper.ToRadians(90);
-        sprite.Position = new Vector2(550, 450);
+        sprite.Speed = 150f;
+        sprite.Rotation = MathHelper.ToRadians(88);
+        sprite.Position = new Vector2(sprite.WorldSize - (sprite.Bounds.Width * 4), 500);
         sprite.GetGridPositionsForSpriteBase(GRID_CELL_SIZE, _gameData);
 
         //Debug Properties
@@ -676,69 +693,48 @@ public class Game1 : Game
         _gameData.Sprites.Add(sprite);
         _gameData.AddSpriteToGrid(sprite);
 
-        sprite = new Truck();
-        sprite.Scale = .8f;
-        sprite.Color = Color.Gold;
-        sprite.ScreenDepth = 1f; //Only used when you specify FrontToBack or BackToFront on the SpriteBatch
-        if (sprite.Scale < 0.5f)
-            sprite.Scale = 0.5f;
-
-        sprite.IsAlive = true;
-        sprite.WorldSize = _gameData.Settings.WorldSize;
-        sprite.Texture = BuildSampleImage(_graphics.GraphicsDevice);
-        sprite.Speed = 190f;
-        sprite.Rotation = MathHelper.ToRadians(90);
-        sprite.Position = new Vector2(550, 570);
-        sprite.GetGridPositionsForSpriteBase(GRID_CELL_SIZE, _gameData);
-
-        //Debug Properties
-        sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
-        sprite.DebugFont = _diagFont;
-
-        _gameData.Sprites.Add(sprite);
-        _gameData.AddSpriteToGrid(sprite);
 
         //*************************
         //Building
         //*************************
 
-        sprite = new Building();
-        sprite.Scale = 3.2f;
-        sprite.Color = Color.Black;
-        sprite.ScreenDepth = 1f; //Only used when you specify FrontToBack or BackToFront on the SpriteBatch
-        sprite.IsAlive = true;
-        sprite.WorldSize = _gameData.Settings.WorldSize;
-        sprite.Texture = BuildSampleImageBuilding(_graphics.GraphicsDevice);
-        sprite.Speed = 0f;
-        sprite.Rotation = 0f;
-        sprite.Position = new Vector2(450,500);
-        sprite.GetGridPositionsForSpriteBase(GRID_CELL_SIZE, _gameData);
+        //sprite = new Building();
+        //sprite.Scale = 3.2f;
+        //sprite.Color = Color.Black;
+        //sprite.ScreenDepth = 1f; //Only used when you specify FrontToBack or BackToFront on the SpriteBatch
+        //sprite.IsAlive = true;
+        //sprite.WorldSize = _gameData.Settings.WorldSize;
+        //sprite.Texture = BuildSampleImageBuilding(_graphics.GraphicsDevice);
+        //sprite.Speed = 0f;
+        //sprite.Rotation = 0f;
+        //sprite.Position = new Vector2(450,500);
+        //sprite.GetGridPositionsForSpriteBase(GRID_CELL_SIZE, _gameData);
 
-        //Debug Properties
-        sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
-        sprite.DebugFont = _diagFont;
+        ////Debug Properties
+        //sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+        //sprite.DebugFont = _diagFont;
 
-        _gameData.Sprites.Add(sprite);
-        _gameData.AddSpriteToGrid(sprite);
+        //_gameData.Sprites.Add(sprite);
+        //_gameData.AddSpriteToGrid(sprite);
 
-        sprite = new Building();
-        sprite.Scale = 2.8f;
-        sprite.Color = Color.Black;
-        sprite.ScreenDepth = 1f; //Only used when you specify FrontToBack or BackToFront on the SpriteBatch
-        sprite.IsAlive = true;
-        sprite.WorldSize = _gameData.Settings.WorldSize;
-        sprite.Texture = BuildSampleImageBuilding(_graphics.GraphicsDevice);
-        sprite.Speed = 0f;
-        sprite.Rotation = 0f;
-        sprite.Position = new Vector2(800, 500);
-        sprite.GetGridPositionsForSpriteBase(GRID_CELL_SIZE, _gameData);
+        //sprite = new Building();
+        //sprite.Scale = 2.8f;
+        //sprite.Color = Color.Black;
+        //sprite.ScreenDepth = 1f; //Only used when you specify FrontToBack or BackToFront on the SpriteBatch
+        //sprite.IsAlive = true;
+        //sprite.WorldSize = _gameData.Settings.WorldSize;
+        //sprite.Texture = BuildSampleImageBuilding(_graphics.GraphicsDevice);
+        //sprite.Speed = 0f;
+        //sprite.Rotation = 0f;
+        //sprite.Position = new Vector2(800, 500);
+        //sprite.GetGridPositionsForSpriteBase(GRID_CELL_SIZE, _gameData);
 
-        //Debug Properties
-        sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
-        sprite.DebugFont = _diagFont;
+        ////Debug Properties
+        //sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+        //sprite.DebugFont = _diagFont;
 
-        _gameData.Sprites.Add(sprite);
-        _gameData.AddSpriteToGrid(sprite);
+        //_gameData.Sprites.Add(sprite);
+        //_gameData.AddSpriteToGrid(sprite);
     }
     private Texture2D BuildSampleImage(GraphicsDevice device)
     {
