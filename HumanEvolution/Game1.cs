@@ -297,6 +297,7 @@ public class Game1 : Game
                 }
                 if (_gameData.Sprites[i].Bounds.Top <= 0 || _gameData.Sprites[i].Bounds.Bottom >= _gameData.Settings.WorldSize)
                 {
+                    _gameData.Sprites[i].Color = Color.Green;
                     if (_gameData.Sprites[i].Direction.X >= 0 && _gameData.Sprites[i].Direction.Y >= 0 ||
                         _gameData.Sprites[i].Direction.X >= 0 && _gameData.Sprites[i].Direction.Y < 0 ||
                         _gameData.Sprites[i].Direction.X < 0 && _gameData.Sprites[i].Direction.Y >= 0 ||
