@@ -8,7 +8,7 @@ namespace MGTemplate
         [STAThread]
         static void Main()
         {
-            //test
+            //Justin Test
             using (var game = new Game1())
                 game.Run();
         }
