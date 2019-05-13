@@ -286,8 +286,6 @@ public class Game1 : Game
     }
     private void UpdateOffTickHandleCollisionsAndMovement(GameTime gameTime)
     {
-        List<SpriteBase> deadSpritesToRemove = new List<SpriteBase>();
-
         //Border Collision Detection
         for (int i = 0; i < _gameData.Sprites.Count; i++)
         {
@@ -375,12 +373,6 @@ public class Game1 : Game
                 _gameData.Sprites[i].Update(gameTime, ref _gameData); //Movement done in Update
             }
         }
-
-        foreach (SpriteBase c in deadSpritesToRemove)
-        {
-            _gameData.AddDeadSpriteToList(c);
-            _gameData.Sprites.Remove(c);
-        }
     }
     private void UpdateOffTickAnimations(GameTime gameTime)
     {
@@ -407,6 +399,16 @@ public class Game1 : Game
     }
     private void UpdateOffTickIntervalCleanupAnimations(GameTime gameTime)
     {
+        //Cleanup Dead sprites
+        for(int i = _gameData.Sprites.Count - 1; i >= 0; i--)
+        {
+            if (!_gameData.Sprites[i].IsAlive)
+            {
+                _gameData.AddDeadSpriteToList(_gameData.Sprites[i]);
+                _gameData.Sprites.Remove(_gameData.Sprites[i]);
+            }
+        }
+
         //Cleanup old animations
         for (int i = _gameData.Animations.Count() - 1; i >= 0; i--)
         {
@@ -655,31 +657,34 @@ public class Game1 : Game
         //***********************
         //Hunter
         //***********************
-        Animal hunter = new Animal();
-        hunter.AnimalAi = new Ai(hunter);
-        hunter.Texture = BuildSampleImage(_graphics.GraphicsDevice);
-        hunter.MiniMapTexture = _gameData.Textures.MiniMapObjectDiamondTexture;
-        hunter.MiniMapScale = 1f;
-        hunter.Scale = (float)(_rand.NextDouble() * 5);
-        hunter.Color = Color.Black;
-        hunter.ScreenDepth = 1f;
+        for (int i = 0; i < 200; i++)
+        {
+            Wolf hunter = new Wolf();
+            hunter.AnimalAi = new AiChase(hunter);
+            hunter.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+            hunter.MiniMapTexture = _gameData.Textures.MiniMapObjectDiamondTexture;
+            hunter.MiniMapScale = 1f;
+            hunter.Scale = (float)(_rand.NextDouble() * 5);
+            hunter.Color = Color.Black;
+            hunter.ScreenDepth = 1f;
 
-        if (hunter.Scale < 4f)
-            hunter.Scale = 4f;
+            if (hunter.Scale < 4f)
+                hunter.Scale = 4f;
 
-        hunter.IsAlive = true;
-        hunter.WorldSize = _gameData.Settings.WorldSize;
-        hunter.Speed = 400f;
-        hunter.Rotation = MathHelper.ToRadians(88);
-        hunter.Position = new Vector2(_rand.Next((int)hunter.AdjustedSize.X, _gameData.Settings.WorldSize - (int)hunter.AdjustedSize.X), _rand.Next((int)hunter.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)hunter.AdjustedSize.Y));
-        hunter.GetGridPositionsForSpriteBase(_gameData);
+            hunter.IsAlive = true;
+            hunter.WorldSize = _gameData.Settings.WorldSize;
+            hunter.Speed = 400f;
+            hunter.Rotation = MathHelper.ToRadians(88);
+            hunter.Position = new Vector2(_rand.Next((int)hunter.AdjustedSize.X, _gameData.Settings.WorldSize - (int)hunter.AdjustedSize.X), _rand.Next((int)hunter.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)hunter.AdjustedSize.Y));
+            hunter.GetGridPositionsForSpriteBase(_gameData);
 
-        //Debug Properties
-        hunter.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
-        hunter.DebugFont = _diagFont;
+            //Debug Properties
+            hunter.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+            hunter.DebugFont = _diagFont;
 
-        _gameData.Sprites.Add(hunter);
-        _gameData.AddSpriteToGrid(hunter);
+            _gameData.Sprites.Add(hunter);
+            _gameData.AddSpriteToGrid(hunter);
+        }
 
         //***********************
         //Prey

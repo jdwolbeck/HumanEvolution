@@ -46,6 +46,7 @@
     <Compile Include="DataCollection\JsonHelper.cs" />
     <Compile Include="DataCollection\MapStatistics.cs" />
     <Compile Include="DataCollection\SettingsHelper.cs" />
+    <Compile Include="Framework\AiChaseIntercept.cs" />
     <Compile Include="Framework\Animation\AnimationBase.cs" />
     <Compile Include="Framework\Animation\CollisionParticleAnimationFactory.cs" />
     <Compile Include="Framework\Animation\IAnimFactory.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Framework\Sound\SoundEffectManager.cs" />
     <Compile Include="Framework\TextureContainer.cs" />
     <Compile Include="GameData\Ai.cs" />
+    <Compile Include="GameData\AiChase.cs" />
     <Compile Include="GameData\Animal.cs" />
     <Compile Include="GameData\Human.cs" />
     <Compile Include="GameData\Interfaces\IAi.cs" />
@@ -79,6 +81,7 @@
     <Compile Include="GameData\SpriteBase.cs" />
     <Compile Include="GameData\Truck.cs" />
     <Compile Include="GameData\Van.cs" />
+    <Compile Include="GameData\Wolf.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
