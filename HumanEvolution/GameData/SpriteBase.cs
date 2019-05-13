@@ -232,13 +232,13 @@ public abstract class SpriteBase
 
         return delta;
     }
-    public void GetGridPositionsForSpriteBase(int gridCellSize, GameData _gameData)
+    public void GetGridPositionsForSpriteBase(GameData _gameData)
     {
         List<Point> gridPositions = new List<Point>();
 
         //Find the top left grid position and the bottom right grid position
-        Point topLeft = new Point((int)Math.Floor(Bounds.X / gridCellSize), (int)Math.Floor(Bounds.Y / gridCellSize));
-        Point bottomRight = new Point((int)Math.Floor((Bounds.X + Bounds.Width) / gridCellSize), (int)Math.Floor((Bounds.Y + Bounds.Height) / gridCellSize));
+        Point topLeft = new Point((int)Math.Floor(Bounds.X / _gameData.Settings.GridCellSize), (int)Math.Floor(Bounds.Y / _gameData.Settings.GridCellSize));
+        Point bottomRight = new Point((int)Math.Floor((Bounds.X + Bounds.Width) / _gameData.Settings.GridCellSize), (int)Math.Floor((Bounds.Y + Bounds.Height) / _gameData.Settings.GridCellSize));
 
         for(int y = topLeft.Y; y <= bottomRight.Y; y++)
         {
@@ -263,13 +263,36 @@ public abstract class SpriteBase
         GridPositions = gridPositions;
     }
 
-    public virtual void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime, ref GameData _gameData)
     {
-        Position += Direction * (Speed * (float)gameTime.ElapsedGameTime.TotalSeconds);
+        if (IsAlive && IsMovable)
+        {
+            Position += Direction * (Speed * (float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            GetGridPositionsForSpriteBase(_gameData);
+
+            if (CurrentGridPositionsForCompare != OldGridPositionsForCompare)
+            {
+                //Remove delta
+                List<Point> delta = GetGridDelta();
+                if (delta.Count > 0)
+                {
+                    _gameData.RemoveSpriteFromGrid(this, delta);
+                }
+
+                //Add delta
+                delta = GetGridDeltaAdd();
+                if (delta.Count > 0)
+                {
+                    _gameData.AddSpriteDeltaToGrid(this, delta);
+                }
+            }
+        }
     }
     public virtual void Draw(SpriteBatch _spriteBatch)
     {
-        _spriteBatch.Draw(Texture, Position, null, Color, Rotation, Origin, Scale, SpriteEffects.None, ScreenDepth);
+        if(IsAlive && DrawObject)
+            _spriteBatch.Draw(Texture, Position, null, Color, Rotation, Origin, Scale, SpriteEffects.None, ScreenDepth);
     }
     public void DrawDebugOutlineForSprite(SpriteBatch _spriteBatch)
     {
