@@ -29,7 +29,6 @@ public class Game1 : Game
     private float _tickSeconds;
     private float _elapsedTicksSinceIntervalProcessing;
     //Constants
-    //private const int GRID_CELL_SIZE = 50; //Seems to be the sweet spot for a 5,000 x 5,000 map based on the texture sizes we have so far
     private const int BORDER_WIDTH = 10;
     private const float TICKS_PER_SECOND = 30; //How many ticks per second we should have
     private const bool ENABLE_DEBUG = false;
@@ -51,10 +50,6 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        Global.Camera.ViewportWidth = _graphics.GraphicsDevice.Viewport.Width;
-        Global.Camera.ViewportHeight = _graphics.GraphicsDevice.Viewport.Height;
-        Global.Camera.CenterOn(new Vector2(Global.Camera.ViewportWidth / 2, Global.Camera.ViewportHeight / 2));
-
         base.Initialize();
     }
     protected override void LoadContent()
@@ -62,6 +57,11 @@ public class Game1 : Game
         //Load settings at the beginning
         _gameData = new GameData();
         _gameData.Settings = SettingsHelper.ReadSettings("Settings.json");
+
+        Global.Camera.ViewportWidth = _graphics.GraphicsDevice.Viewport.Width;
+        Global.Camera.ViewportHeight = _graphics.GraphicsDevice.Viewport.Height;
+        Global.Camera.CenterOn(new Vector2(Global.Camera.ViewportWidth / 2, Global.Camera.ViewportHeight / 2));
+        Global.Camera.Initialize(_gameData.Settings.WorldSize);
 
         //Init variables
         InitVariables();
@@ -89,6 +89,10 @@ public class Game1 : Game
         _gameData.Textures.ParticleCollisionSouthLeftSpriteSheet = Content.Load<Texture2D>(@"Animations\ImpactSouthLeft");
         _gameData.Textures.ParticleCollisionSouthRightSpriteSheet = Content.Load<Texture2D>(@"Animations\ImpactSouthRight");
         _gameData.Textures.ClickExplosionSpriteSheet = Content.Load<Texture2D>(@"Animations\ClickExplosion1");
+        _gameData.Textures.MiniMapFrame = Content.Load<Texture2D>(@"Minimap\MinimapFrame");
+        _gameData.Textures.MiniMapBuildingTexture = Content.Load<Texture2D>(@"Minimap\MinimapBuilding");
+        _gameData.Textures.MiniMapObjectDiamondTexture = Content.Load<Texture2D>(@"Minimap\MinimapMovingObjectDiamond");
+        _gameData.Textures.MiniMapObjectCircleTexture = Content.Load<Texture2D>(@"Minimap\MinimapMovingObjectCircle");
 
         _rand = new Random();
         _gameData.CollisionAnimFactory = new CollisionParticleAnimationFactory(_gameData.Textures.ParticleCollisionEastBottomSpriteSheet, _gameData.Textures.ParticleCollisionEastTopSpriteSheet, _gameData.Textures.ParticleCollisionWestBottomSpriteSheet, _gameData.Textures.ParticleCollisionWestTopSpriteSheet, _gameData.Textures.ParticleCollisionNorthLeftSpriteSheet, _gameData.Textures.ParticleCollisionNorthRightSpriteSheet, _gameData.Textures.ParticleCollisionSouthLeftSpriteSheet, _gameData.Textures.ParticleCollisionSouthRightSpriteSheet, 4, 40);
@@ -129,6 +133,9 @@ public class Game1 : Game
             }
         }
 
+        _gameData.MiniMap = new MiniMap(_gameData.Textures.WhitePixel, _gameData.Textures.MiniMapFrame, 20);
+        _gameData.MiniMap.SetPosition(_graphics.GraphicsDevice, new Vector2(_gameData.Settings.WorldSize, _gameData.Settings.WorldSize), Anchor.BottomRight, new Vector2(200, 200));
+
         //SpawnScenerioTestObjs();
         SpawnScenerioHumanObey();
 
@@ -156,8 +163,8 @@ public class Game1 : Game
         else
         {
             _inputState.Update();
-            _player.HandleInput(_inputState, ref _gameData);
-            Global.Camera.HandleInput(_inputState, PlayerIndex.One, gameTime, ref _gameData);
+            if(!_player.HandleInput(_inputState, ref _gameData)) //If the Player class returns false then pass the input on to the camera
+                Global.Camera.HandleInput(_inputState, PlayerIndex.One, gameTime, ref _gameData);
 
             _elapsedSecondsSinceTick += gameTime.ElapsedGameTime.TotalSeconds;
             _elapsedTimeSinceFoodGeneration += gameTime.ElapsedGameTime.TotalSeconds;
@@ -166,20 +173,6 @@ public class Game1 : Game
                 _elapsedSecondsSinceTick = _elapsedSecondsSinceTick - _tickSeconds; //Start the next tick with the overage
                 tick = true;
             }
-
-            //for (int i = 0; i < _gameData.Sprites.Count(); i++)
-            //{
-            //    if (_gameData.Sprites[i].IsAlive)
-            //    {
-            //        if (_gameData.Sprites[i].Color == Color.Black)
-            //        {
-            //            _gameData.Sprites[i].IsAlive = false;
-            //            SpawnScenerioTestObjs();
-
-            //            break;
-            //        }
-            //    }
-            //}
 
             //During a tick do all creature processing
             if (tick)
@@ -249,6 +242,7 @@ public class Game1 : Game
         _elapsedTicksSinceIntervalProcessing++;
 
         UpdateTickSprites(gameTime);
+        UpdateTickMiniMap(gameTime);
     }
     private void UpdateTickSprites(GameTime gameTime)
     {
@@ -273,6 +267,10 @@ public class Game1 : Game
             }
         }
     } //Increase FPS by not drawing offscreen objects
+    private void UpdateTickMiniMap(GameTime gameTime)
+    {
+        _gameData.MiniMap.UpdateMap(_gameData, Global.Camera.VisibleArea);
+    }
 
     //Update OffTick functions
     private void UpdateOffTick(GameTime gameTime)
@@ -494,12 +492,17 @@ public class Game1 : Game
     private void DrawHUD()
     {
         _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
+        DrawMiniMap();
         DrawFps();
         _spriteBatch.End();
     }
     private void DrawFps()
     {
         _spriteBatch.DrawString(_diagFont, "FPS: " + _fps, new Vector2(10, 10), Color.Black); //FPS Counter in top left corner
+    }
+    private void DrawMiniMap()
+    {
+        _gameData.MiniMap.Draw(_spriteBatch);
     }
 
     //Debug Test functions
@@ -649,11 +652,14 @@ public class Game1 : Game
     }
     public void SpawnScenerioHumanObey()
     {
+        //***********************
         //Hunter
-
+        //***********************
         Animal hunter = new Animal();
         hunter.AnimalAi = new Ai(hunter);
         hunter.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+        hunter.MiniMapTexture = _gameData.Textures.MiniMapObjectDiamondTexture;
+        hunter.MiniMapScale = 1f;
         hunter.Scale = (float)(_rand.NextDouble() * 5);
         hunter.Color = Color.Black;
         hunter.ScreenDepth = 1f;
@@ -675,11 +681,15 @@ public class Game1 : Game
         _gameData.Sprites.Add(hunter);
         _gameData.AddSpriteToGrid(hunter);
 
+        //***********************
         //Prey
-        for (int i = 0; i < 200; i++)
+        //***********************
+        for (int i = 0; i < 30; i++)
         {
             Truck prey = new Truck();
             prey.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+            prey.MiniMapTexture = _gameData.Textures.MiniMapObjectCircleTexture;
+            prey.MiniMapScale = 0.5f;
             prey.Scale = (float)(_rand.NextDouble() * 2);
             prey.Color = new Color((float)_rand.NextDouble(), (float)_rand.NextDouble(), (float)_rand.NextDouble());
             prey.ScreenDepth = 1f;
@@ -701,6 +711,38 @@ public class Game1 : Game
 
             _gameData.Sprites.Add(prey);
             _gameData.AddSpriteToGrid(prey);
+        }
+
+        //***********************
+        //Buildings
+        //***********************
+        for (int i = 0; i < 30; i++)
+        {
+            Building building = new Building();
+            building.Texture = BuildSampleImageBuilding(_graphics.GraphicsDevice);
+            building.MiniMapTexture = _gameData.Textures.MiniMapBuildingTexture;
+            building.MiniMapScale = 1f;
+            building.MiniMapOpacity = 0.35f;
+            building.Scale = (float)(_rand.NextDouble() * 2);
+            building.Color = Color.White;
+            building.ScreenDepth = 1f;
+
+            if (building.Scale < 0.8f)
+                building.Scale = 0.8f;
+
+            building.IsAlive = true;
+            building.WorldSize = _gameData.Settings.WorldSize;
+            building.Speed = 0f;
+            building.Rotation = 0f;
+            building.Position = new Vector2(_rand.Next((int)building.AdjustedSize.X, _gameData.Settings.WorldSize - (int)building.AdjustedSize.X), _rand.Next((int)building.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)building.AdjustedSize.Y));
+            building.GetGridPositionsForSpriteBase(_gameData);
+
+            //Debug Properties
+            building.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+            building.DebugFont = _diagFont;
+
+            _gameData.Sprites.Add(building);
+            _gameData.AddSpriteToGrid(building);
         }
     }
     private Texture2D BuildSampleImage(GraphicsDevice device)

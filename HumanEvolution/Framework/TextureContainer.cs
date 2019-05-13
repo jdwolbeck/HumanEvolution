@@ -18,6 +18,12 @@ public class TextureContainer
     public Texture2D ParticleCollisionSouthRightSpriteSheet { get; set; }
     public Texture2D ClickExplosionSpriteSheet { get; set; }
 
+    //Minimap textures
+    public Texture2D MiniMapFrame { get; set; }
+    public Texture2D MiniMapBuildingTexture { get; set; }
+    public Texture2D MiniMapObjectDiamondTexture { get; set; }
+    public Texture2D MiniMapObjectCircleTexture { get; set; }
+
     public TextureContainer()
     {
     }

@@ -11,8 +11,20 @@ public class Player
     public Player()
     { }
 
-    public void HandleInput(InputState inputState, ref GameData gameData)
+    //Returns true if this function is handling all inputs
+    public bool HandleInput(InputState inputState, ref GameData gameData)
     {
+        if (inputState.CurrentMouseState.LeftButton == ButtonState.Pressed)
+        {
+            if (gameData.MiniMap.BackgroundTargetRectangle.Contains(inputState.CurrentMouseState.Position))
+            {
+                Vector2 miniMapToRealMapPos = gameData.MiniMap.GetNewCameraPositionForPoint(inputState.CurrentMouseState.Position);
+                Global.Camera.CenterOn(miniMapToRealMapPos);
+
+                return true;
+            }
+        }
+
         MouseState mouseState;
         if (inputState.IsNewLeftMouseClick(out mouseState))
         {
@@ -28,5 +40,7 @@ public class Player
             //    }
             //}
         }
+
+        return false;
     }
 }

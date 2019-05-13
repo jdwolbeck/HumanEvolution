@@ -7,6 +7,7 @@ public class GameData
 {
     public GameSettings Settings { get; set; }
     public TextureContainer Textures { get; set; } //Could utilize the TextureContainer as a strongly typed class to hold all textures
+    public MiniMap MiniMap { get; set; } //HUD minimap
     public CollisionParticleAnimationFactory CollisionAnimFactory { get; set; } //Factory to build animations
     public OnClickAnimationFactory OnClickAnimFactory { get; set; } //Factory to build animations
     public MapStatistics MapStatistics { get; set; } //Map stats for the top bar on the HUD
