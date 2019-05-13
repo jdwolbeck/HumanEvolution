@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using RectangleFLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,6 +129,7 @@ public abstract class SpriteBase
     public float ScreenDepth { get; set; }
     public Color Color { get; set; }
     public bool IsAlive { get; set; }
+    public bool IsMoving { get; set; }
     public bool DrawObject { get; set; } //Is the object on screen and should we draw it
     //Debug Properties
     public Texture2D WhiteTexture { get; set; }
@@ -263,11 +263,15 @@ public abstract class SpriteBase
         GridPositions = gridPositions;
     }
 
+    public virtual void UpdateTick(GameTime gameTime, ref GameData _gameData)
+    {
+
+    }
     public virtual void Update(GameTime gameTime, ref GameData _gameData)
     {
-        if (IsAlive && IsMovable)
+        if (IsAlive && IsMovable && IsMoving)
         {
-            Position += Direction * (Speed * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            UpdateMovement(gameTime, ref _gameData);
 
             GetGridPositionsForSpriteBase(_gameData);
 
@@ -288,6 +292,10 @@ public abstract class SpriteBase
                 }
             }
         }
+    }
+    public virtual void UpdateMovement(GameTime gameTime, ref GameData _gameData)
+    {
+        Position += Direction * (Speed * (float)gameTime.ElapsedGameTime.TotalSeconds);
     }
     public virtual void Draw(SpriteBatch _spriteBatch)
     {

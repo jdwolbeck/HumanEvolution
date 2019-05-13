@@ -62,6 +62,9 @@
     <Compile Include="Framework\RectangleF.cs" />
     <Compile Include="Framework\Sound\SoundEffectManager.cs" />
     <Compile Include="Framework\TextureContainer.cs" />
+    <Compile Include="GameData\Ai.cs" />
+    <Compile Include="GameData\Animal.cs" />
+    <Compile Include="GameData\Human.cs" />
     <Compile Include="GameData\Player.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Framework\GridData.cs" />

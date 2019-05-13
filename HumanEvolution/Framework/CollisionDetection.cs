@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using RectangleFLib;
 
 public enum UseForCollisionDetection { Triangles, Rectangles, Circles }
 

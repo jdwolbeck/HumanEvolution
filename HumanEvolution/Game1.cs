@@ -141,15 +141,16 @@ public class Game1 : Game
         }
 
         //SpawnScenerioTestObjs();
+        SpawnScenerioHumanObey();
 
-        for (int i = 0; i < 500; i++)
-        {
-            SpawnTestObject();
-        }
-        for (int i = 0; i < 200; i++)
-        {
-            SpawnSampleBuilding();
-        }
+        //for (int i = 0; i < 500; i++)
+        //{
+        //    SpawnTestObject();
+        //}
+        //for (int i = 0; i < 200; i++)
+        //{
+        //    SpawnSampleBuilding();
+        //}
     }
 
     /// <summary>
@@ -295,6 +296,7 @@ public class Game1 : Game
     {
         for (int i = _gameData.Sprites.Count - 1; i >= 0; i--)
         {
+            _gameData.Sprites[i].UpdateTick(gameTime, ref _gameData);
             UpdateMoveSprite(gameTime, i);
         }
         UpdateHandleObjectsToBeDrawn(gameTime);
@@ -720,6 +722,65 @@ public class Game1 : Game
 
         //_gameData.Sprites.Add(sprite);
         //_gameData.AddSpriteToGrid(sprite);
+    }
+    public void SpawnScenerioHumanObey()
+    {
+        //Hunter
+
+        SpriteBase sprite;
+
+        sprite = new Animal();
+        ((Animal)sprite).Ai = new Ai(sprite);
+        sprite.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+        sprite.Scale = (float)(_rand.NextDouble() * 5);
+        sprite.Color = Color.Black;
+        sprite.ScreenDepth = 1f;
+
+        if (sprite.Scale < 4f)
+            sprite.Scale = 4f;
+
+        sprite.IsAlive = true;
+        sprite.WorldSize = _gameData.Settings.WorldSize;
+        sprite.Speed = 400f;
+        sprite.Rotation = MathHelper.ToRadians(88);
+        sprite.Position = new Vector2(_rand.Next((int)sprite.AdjustedSize.X, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.X), _rand.Next((int)sprite.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.Y));
+        sprite.GetGridPositionsForSpriteBase(_gameData);
+        sprite.IsMoving = true;
+
+        //Debug Properties
+        sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+        sprite.DebugFont = _diagFont;
+
+        _gameData.Sprites.Add(sprite);
+        _gameData.AddSpriteToGrid(sprite);
+
+        //Hunted
+        for (int i = 0; i < 200; i++)
+        {
+            sprite = new Truck();
+            sprite.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+            sprite.Scale = (float)(_rand.NextDouble() * 2);
+            sprite.Color = new Color((float)_rand.NextDouble(), (float)_rand.NextDouble(), (float)_rand.NextDouble());
+            sprite.ScreenDepth = 1f;
+
+            if (sprite.Scale < 0.5f)
+                sprite.Scale = 0.5f;
+
+            sprite.IsAlive = true;
+            sprite.WorldSize = _gameData.Settings.WorldSize;
+            sprite.Speed = 450f;
+            sprite.Rotation = MathHelper.ToRadians(_rand.Next(0, 360));
+            sprite.Position = new Vector2(_rand.Next((int)sprite.AdjustedSize.X, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.X), _rand.Next((int)sprite.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.Y));
+            sprite.GetGridPositionsForSpriteBase(_gameData);
+            sprite.IsMoving = true;
+
+            //Debug Properties
+            sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+            sprite.DebugFont = _diagFont;
+
+            _gameData.Sprites.Add(sprite);
+            _gameData.AddSpriteToGrid(sprite);
+        }
     }
     private Texture2D BuildSampleImage(GraphicsDevice device)
     {

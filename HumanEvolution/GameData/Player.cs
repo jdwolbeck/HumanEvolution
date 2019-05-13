@@ -16,8 +16,17 @@ public class Player
         MouseState mouseState;
         if (inputState.IsNewLeftMouseClick(out mouseState))
         {
-            Vector2 worldPosition = Vector2.Transform(new Vector2(mouseState.Position.X, mouseState.Position.Y), Matrix.Invert(Global.Camera.TranslationMatrix));
-            gameData.Animations.Add(gameData.OnClickAnimFactory.Build(new Point((int)worldPosition.X, (int)worldPosition.Y)));
+            //Vector2 worldPosition = Vector2.Transform(new Vector2(mouseState.Position.X, mouseState.Position.Y), Matrix.Invert(Global.Camera.TranslationMatrix));
+            ////gameData.Animations.Add(gameData.OnClickAnimFactory.Build(new Point((int)worldPosition.X, (int)worldPosition.Y)));
+
+            //for(int i = 0; i < gameData.Sprites.Count; i++)
+            //{
+            //    if(gameData.Sprites[i].GetType() == typeof(Animal))
+            //    {
+            //        ((Animal)gameData.Sprites[i]).Path.Add(Animal.PositionToRectangle(worldPosition));
+            //        ((Animal)gameData.Sprites[i]).IsMoving = true;
+            //    }
+            //}
         }
     }
 }
