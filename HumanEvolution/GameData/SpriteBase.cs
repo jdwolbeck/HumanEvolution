@@ -236,24 +236,15 @@ public abstract class SpriteBase
     {
         List<Point> gridPositions = new List<Point>();
 
-        //Find the exact grid position we are in then check the surrounding grid locations
-        Point exactGridPos = CalculateGridPosition(gridCellSize);
+        //Find the top left grid position and the bottom right grid position
+        Point topLeft = new Point((int)Math.Floor(Bounds.X / gridCellSize), (int)Math.Floor(Bounds.Y / gridCellSize));
+        Point bottomRight = new Point((int)Math.Floor((Bounds.X + Bounds.Width) / gridCellSize), (int)Math.Floor((Bounds.Y + Bounds.Height) / gridCellSize));
 
-        //TODO Rework the math, we dont always need to add 2 to the search list
-        int checkRadius = ((int)Math.Ceiling(Math.Max(Bounds.Width, Bounds.Height) / (double)gridCellSize) + 2);
-
-        Point startPos = new Point(exactGridPos.X - (checkRadius / 2), exactGridPos.Y - (checkRadius / 2));
-        for (int y = startPos.Y; y < (startPos.Y + checkRadius); y++)
+        for(int y = topLeft.Y; y <= bottomRight.Y; y++)
         {
-            for (int x = startPos.X; x < (startPos.X + checkRadius); x++)
+            for(int x = topLeft.X; x <= bottomRight.X; x++)
             {
-                if (x >= 0 && x < _gameData.MapGridData.GetLength(0) && y >= 0 && y < _gameData.MapGridData.GetLength(1))
-                {
-                    if (Bounds.Intersects(_gameData.MapGridData[x, y].CellRectangle))
-                    {
-                        gridPositions.Add(new Point(x, y));
-                    }
-                }
+                gridPositions.Add(new Point(x, y));
             }
         }
 

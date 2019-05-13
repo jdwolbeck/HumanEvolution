@@ -31,7 +31,7 @@ public class Game1 : Game
     private const int GRID_CELL_SIZE = 50; //Seems to be the sweet spot for a 5,000 x 5,000 map based on the texture sizes we have so far
     private const int BORDER_WIDTH = 10;
     private const float TICKS_PER_SECOND = 30; //How many ticks per second we should have
-    private const bool ENABLE_DEBUG = false;
+    private const bool ENABLE_DEBUG = true;
     //Colors
     private Color MAP_COLOR = Color.AliceBlue;
 
@@ -135,16 +135,16 @@ public class Game1 : Game
             }
         }
 
-        //SpawnScenerioTestObjs();
+        SpawnScenerioTestObjs();
 
-        for (int i = 0; i < 500; i++)
-        {
-            SpawnTestObject();
-        }
-        for (int i = 0; i < 200; i++)
-        {
-            SpawnSampleBuilding();
-        }
+        //for (int i = 0; i < 500; i++)
+        //{
+        //    SpawnTestObject();
+        //}
+        //for (int i = 0; i < 200; i++)
+        //{
+        //    SpawnSampleBuilding();
+        //}
     }
 
     /// <summary>
@@ -679,7 +679,7 @@ public class Game1 : Game
 
         sprite.IsAlive = true;
         sprite.WorldSize = _gameData.Settings.WorldSize;
-        sprite.Speed = 150f;
+        sprite.Speed = 15f;
         sprite.Rotation = MathHelper.ToRadians(88);
         sprite.Position = new Vector2(sprite.WorldSize - (sprite.Bounds.Width * 4), 500);
         sprite.GetGridPositionsForSpriteBase(GRID_CELL_SIZE, _gameData);
