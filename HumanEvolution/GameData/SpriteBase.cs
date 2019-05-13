@@ -244,7 +244,8 @@ public abstract class SpriteBase
         {
             for(int x = topLeft.X; x <= bottomRight.X; x++)
             {
-                gridPositions.Add(new Point(x, y));
+                if(x >= 0 && x < _gameData.MapGridData.GetLength(0) && y >= 0 && y < _gameData.MapGridData.GetLength(1))
+                    gridPositions.Add(new Point(x, y));
             }
         }
 
