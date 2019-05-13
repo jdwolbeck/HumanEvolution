@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Human
+interface ILiving
 {
-    public Human()
-    { }
+    bool IsAlive { get; set; }
 }

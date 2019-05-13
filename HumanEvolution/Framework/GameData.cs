@@ -6,7 +6,6 @@ using System.Linq;
 public class GameData
 {
     public GameSettings Settings { get; set; }
-    //public List<TextureContainer> Textures { get; set; } //Could utilize the TextureContainer as a list 
     public TextureContainer Textures { get; set; } //Could utilize the TextureContainer as a strongly typed class to hold all textures
     public CollisionParticleAnimationFactory CollisionAnimFactory { get; set; } //Factory to build animations
     public OnClickAnimationFactory OnClickAnimFactory { get; set; } //Factory to build animations

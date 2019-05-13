@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Human
+public interface IAi
 {
-    public Human()
-    { }
+    Animal ThinkingAnimal { get; set; }
+    List<RectangleF> GetPath(GameData gameData);
 }

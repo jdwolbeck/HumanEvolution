@@ -232,19 +232,19 @@ public abstract class SpriteBase
 
         return delta;
     }
-    public void GetGridPositionsForSpriteBase(GameData _gameData)
+    public void GetGridPositionsForSpriteBase(GameData gameData)
     {
         List<Point> gridPositions = new List<Point>();
 
         //Find the top left grid position and the bottom right grid position
-        Point topLeft = new Point((int)Math.Floor(Bounds.X / _gameData.Settings.GridCellSize), (int)Math.Floor(Bounds.Y / _gameData.Settings.GridCellSize));
-        Point bottomRight = new Point((int)Math.Floor((Bounds.X + Bounds.Width) / _gameData.Settings.GridCellSize), (int)Math.Floor((Bounds.Y + Bounds.Height) / _gameData.Settings.GridCellSize));
+        Point topLeft = new Point((int)Math.Floor(Bounds.X / gameData.Settings.GridCellSize), (int)Math.Floor(Bounds.Y / gameData.Settings.GridCellSize));
+        Point bottomRight = new Point((int)Math.Floor((Bounds.X + Bounds.Width) / gameData.Settings.GridCellSize), (int)Math.Floor((Bounds.Y + Bounds.Height) / gameData.Settings.GridCellSize));
 
         for(int y = topLeft.Y; y <= bottomRight.Y; y++)
         {
             for(int x = topLeft.X; x <= bottomRight.X; x++)
             {
-                if(x >= 0 && x < _gameData.MapGridData.GetLength(0) && y >= 0 && y < _gameData.MapGridData.GetLength(1))
+                if(x >= 0 && x < gameData.MapGridData.GetLength(0) && y >= 0 && y < gameData.MapGridData.GetLength(1))
                     gridPositions.Add(new Point(x, y));
             }
         }
@@ -263,17 +263,17 @@ public abstract class SpriteBase
         GridPositions = gridPositions;
     }
 
-    public virtual void UpdateTick(GameTime gameTime, ref GameData _gameData)
+    public virtual void UpdateTick(GameTime gameTime, ref GameData gameData)
     {
 
     }
-    public virtual void Update(GameTime gameTime, ref GameData _gameData)
+    public virtual void Update(GameTime gameTime, ref GameData gameData)
     {
         if (IsAlive && IsMovable && IsMoving)
         {
-            UpdateMovement(gameTime, ref _gameData);
+            UpdateMovement(gameTime, ref gameData);
 
-            GetGridPositionsForSpriteBase(_gameData);
+            GetGridPositionsForSpriteBase(gameData);
 
             if (CurrentGridPositionsForCompare != OldGridPositionsForCompare)
             {
@@ -281,45 +281,45 @@ public abstract class SpriteBase
                 List<Point> delta = GetGridDelta();
                 if (delta.Count > 0)
                 {
-                    _gameData.RemoveSpriteFromGrid(this, delta);
+                    gameData.RemoveSpriteFromGrid(this, delta);
                 }
 
                 //Add delta
                 delta = GetGridDeltaAdd();
                 if (delta.Count > 0)
                 {
-                    _gameData.AddSpriteDeltaToGrid(this, delta);
+                    gameData.AddSpriteDeltaToGrid(this, delta);
                 }
             }
         }
     }
-    public virtual void UpdateMovement(GameTime gameTime, ref GameData _gameData)
+    public virtual void UpdateMovement(GameTime gameTime, ref GameData gameData)
     {
         Position += Direction * (Speed * (float)gameTime.ElapsedGameTime.TotalSeconds);
     }
-    public virtual void Draw(SpriteBatch _spriteBatch)
+    public virtual void Draw(SpriteBatch spriteBatch)
     {
         if(IsAlive && DrawObject)
-            _spriteBatch.Draw(Texture, Position, null, Color, Rotation, Origin, Scale, SpriteEffects.None, ScreenDepth);
+            spriteBatch.Draw(Texture, Position, null, Color, Rotation, Origin, Scale, SpriteEffects.None, ScreenDepth);
     }
-    public void DrawDebugOutlineForSprite(SpriteBatch _spriteBatch)
+    public void DrawDebugOutlineForSprite(SpriteBatch spriteBatch)
     {
         int borderWidth = 3;
         int diagnolLength = (int)Math.Ceiling(Math.Sqrt((AdjustedSize.X * AdjustedSize.X) + (AdjustedSize.Y * AdjustedSize.Y)));
         float upperLeftX = Position.X - (diagnolLength / 2), upperLeftY = Position.Y - (diagnolLength / 2);
         float upperLeftReg = Position.X - (Bounds.Width / 2), upperLeftYReg = Position.Y - (Bounds.Width / 2);
 
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX - borderWidth, (int)upperLeftY - borderWidth, diagnolLength + borderWidth * 2, borderWidth), Color.Red);
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX - borderWidth, (int)upperLeftY + diagnolLength, diagnolLength + borderWidth * 2, borderWidth), Color.Red);
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX + diagnolLength, (int)upperLeftY - borderWidth, borderWidth, diagnolLength + borderWidth * 2), Color.Red);
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX - borderWidth, (int)upperLeftY - borderWidth, borderWidth, diagnolLength + borderWidth * 2), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX - borderWidth, (int)upperLeftY - borderWidth, diagnolLength + borderWidth * 2, borderWidth), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX - borderWidth, (int)upperLeftY + diagnolLength, diagnolLength + borderWidth * 2, borderWidth), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX + diagnolLength, (int)upperLeftY - borderWidth, borderWidth, diagnolLength + borderWidth * 2), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftX - borderWidth, (int)upperLeftY - borderWidth, borderWidth, diagnolLength + borderWidth * 2), Color.Red);
 
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg - borderWidth, (int)upperLeftYReg - borderWidth, (int)Bounds.Width + borderWidth * 2, borderWidth), Color.Red);
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg - borderWidth, (int)upperLeftYReg + (int)Bounds.Width, (int)Bounds.Width + borderWidth * 2, borderWidth), Color.Red);
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg + (int)Bounds.Width, (int)upperLeftYReg - borderWidth, borderWidth, (int)Bounds.Width + borderWidth * 2), Color.Red);
-        _spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg - borderWidth, (int)upperLeftYReg - borderWidth, borderWidth, (int)Bounds.Width + borderWidth * 2), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg - borderWidth, (int)upperLeftYReg - borderWidth, (int)Bounds.Width + borderWidth * 2, borderWidth), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg - borderWidth, (int)upperLeftYReg + (int)Bounds.Width, (int)Bounds.Width + borderWidth * 2, borderWidth), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg + (int)Bounds.Width, (int)upperLeftYReg - borderWidth, borderWidth, (int)Bounds.Width + borderWidth * 2), Color.Red);
+        spriteBatch.Draw(WhiteTexture, new Rectangle((int)upperLeftReg - borderWidth, (int)upperLeftYReg - borderWidth, borderWidth, (int)Bounds.Width + borderWidth * 2), Color.Red);
     }
-    public void DrawDebugDataForSprite(SpriteBatch _spriteBatch, bool left)
+    public void DrawDebugDataForSprite(SpriteBatch spriteBatch, bool left)
     {
         List<string> debugInfo = new List<string>();
         debugInfo.Add("Position: " + (int)Position.X + "," + (int)Position.Y);
@@ -344,16 +344,16 @@ public abstract class SpriteBase
 
         int lockWidth = 125;
         if (left)
-            DrawDebugPanel(_spriteBatch, debugInfo, lockWidth, new Vector2(Bounds.Left, Bounds.Bottom + 10));
+            DrawDebugPanel(spriteBatch, debugInfo, lockWidth, new Vector2(Bounds.Left, Bounds.Bottom + 10));
         else
-            DrawDebugPanel(_spriteBatch, debugInfo, lockWidth, new Vector2(Bounds.Left, Bounds.Bottom + 10));
+            DrawDebugPanel(spriteBatch, debugInfo, lockWidth, new Vector2(Bounds.Left, Bounds.Bottom + 10));
 
         //if (left)
         //    DrawDebugPanel(_spriteBatch, debugInfo, lockWidth, new Vector2(Position.X - (Texture.Width / 2) - 5 - lockWidth, Position.Y - (Texture.Height / 2)));
         //else
         //    DrawDebugPanel(_spriteBatch, debugInfo, lockWidth, new Vector2(Position.X + (Texture.Width / 2) + 5, Position.Y - (Texture.Height / 2)));
     }
-    private void DrawDebugPanel(SpriteBatch _spriteBatch, List<string> text, int lockedWidth, Vector2 position)
+    private void DrawDebugPanel(SpriteBatch spriteBatch, List<string> text, int lockedWidth, Vector2 position)
     {
         int width = lockedWidth;
         int height = 0;
@@ -388,15 +388,15 @@ public abstract class SpriteBase
         height = text.Count * (textHeight + textSpacing) + textSpacing;
 
         //Draw the Background border
-        _spriteBatch.Draw(WhiteTexture, new Rectangle(startingX, startingY, width, height), Color.Black);
-        _spriteBatch.Draw(WhiteTexture, new Rectangle(startingX + borderDepth, startingY + borderDepth, width - borderDepth * 2, height - borderDepth * 2), Color.White);
+        spriteBatch.Draw(WhiteTexture, new Rectangle(startingX, startingY, width, height), Color.Black);
+        spriteBatch.Draw(WhiteTexture, new Rectangle(startingX + borderDepth, startingY + borderDepth, width - borderDepth * 2, height - borderDepth * 2), Color.White);
 
         currentX = startingX + borderDepth + textSpacing;
         currentY = startingY + borderDepth + textSpacing;
 
         for (int i = 0; i < text.Count; i++)
         {
-            _spriteBatch.DrawString(DebugFont, text[i], new Vector2(currentX, currentY), Color.Black);
+            spriteBatch.DrawString(DebugFont, text[i], new Vector2(currentX, currentY), Color.Black);
             currentY += textHeight + textSpacing;
         }
     }

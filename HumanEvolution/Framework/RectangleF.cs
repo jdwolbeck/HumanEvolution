@@ -246,6 +246,10 @@ public struct RectangleF : IEquatable<RectangleF>
             result = new RectangleF(0, 0, 0, 0);
         }
     }
+    public static RectangleF PositionToRectangle(Vector2 position)
+    {
+        return new RectangleF(position.X, position.Y, 10, 10);
+    }
 
     public static RectangleF Union(RectangleF value1, RectangleF value2)
     {

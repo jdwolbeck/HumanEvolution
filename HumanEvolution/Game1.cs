@@ -49,12 +49,6 @@ public class Game1 : Game
         Content.RootDirectory = "Content";
     }
 
-    /// <summary>
-    /// Allows the game to perform any initialization it needs to before starting to run.
-    /// This is where it can query for any required services and load any non-graphic
-    /// related content.  Calling base.Initialize will enumerate through any components
-    /// and initialize them as well.
-    /// </summary>
     protected override void Initialize()
     {
         Global.Camera.ViewportWidth = _graphics.GraphicsDevice.Viewport.Width;
@@ -63,11 +57,6 @@ public class Game1 : Game
 
         base.Initialize();
     }
-
-    /// <summary>
-    /// LoadContent will be called once per game and is the place to load
-    /// all of your content.
-    /// </summary>
     protected override void LoadContent()
     {
         //Load settings at the beginning
@@ -152,21 +141,10 @@ public class Game1 : Game
         //    SpawnSampleBuilding();
         //}
     }
-
-    /// <summary>
-    /// UnloadContent will be called once per game and is the place to unload
-    /// game-specific content.
-    /// </summary>
     protected override void UnloadContent()
     {
         // TODO: Unload any non ContentManager content here
     }
-
-    /// <summary>
-    /// Allows the game to run logic such as updating the world,
-    /// checking for collisions, gathering input, and playing audio.
-    /// </summary>
-    /// <param name="gameTime">Provides a snapshot of timing values.</param>
     protected override void Update(GameTime gameTime)
     {
         bool tick = false;
@@ -222,11 +200,6 @@ public class Game1 : Game
 
         base.Update(gameTime);
     }
-
-    /// <summary>
-    /// This is called when the game should draw itself.
-    /// </summary>
-    /// <param name="gameTime">Provides a snapshot of timing values.</param>
     protected override void Draw(GameTime gameTime)
     {
         //FPS Logic
@@ -237,6 +210,8 @@ public class Game1 : Game
             _elapsedSeconds = 0;
             _fpsTotals.Add(_fps);
 
+            //TODO remove this later
+            ////Used for Comparing FPS in Dev
             //if (gameTime.TotalGameTime.TotalSeconds > 30)
             //{
             //    double avg = _fpsTotals.Average();
@@ -268,17 +243,42 @@ public class Game1 : Game
         _tickSeconds = 1 / TICKS_PER_SECOND;
     }
 
-    //Update functions
+    //Update Tick functions
     private void UpdateTick(GameTime gameTime)
     {
         _elapsedTicksSinceIntervalProcessing++;
 
         UpdateTickSprites(gameTime);
     }
+    private void UpdateTickSprites(GameTime gameTime)
+    {
+        for (int i = _gameData.Sprites.Count - 1; i >= 0; i--)
+        {
+            _gameData.Sprites[i].UpdateTick(gameTime, ref _gameData);
+            _gameData.Sprites[i].Update(gameTime, ref _gameData); //Movement done in Update
+        }
+        UpdateTickHandleObjectsToBeDrawn(gameTime);
+    }
+    private void UpdateTickHandleObjectsToBeDrawn(GameTime gameTime)
+    {
+        for (int i = 0; i < _gameData.Sprites.Count(); i++)
+        {
+            if (_gameData.Sprites[i].IsAlive && Global.Camera.VisibleArea.Contains(_gameData.Sprites[i].Position))
+            {
+                _gameData.Sprites[i].DrawObject = true;
+            }
+            else
+            {
+                _gameData.Sprites[i].DrawObject = false;
+            }
+        }
+    } //Increase FPS by not drawing offscreen objects
+
+    //Update OffTick functions
     private void UpdateOffTick(GameTime gameTime)
     {
         UpdateOffTickHandleCollisionsAndMovement(gameTime); //Collisions And Movement
-        UpdateAnimations(gameTime); //Run animation
+        UpdateOffTickAnimations(gameTime); //Run animation
 
         //Every second interval processing only when it is not a TICK. When things only need to be updated once every X seconds
         if (_elapsedTicksSinceIntervalProcessing >= TICKS_PER_SECOND * 5)
@@ -286,26 +286,10 @@ public class Game1 : Game
             UpdateOffTickInterval(gameTime);
         }
     }
-    private void UpdateOffTickInterval(GameTime gameTime)
-    {
-        _elapsedTicksSinceIntervalProcessing = 0;
-        UpdateOffTickIntervalCleanupAnimations(gameTime);
-    }
-
-    private void UpdateTickSprites(GameTime gameTime)
-    {
-        for (int i = _gameData.Sprites.Count - 1; i >= 0; i--)
-        {
-            _gameData.Sprites[i].UpdateTick(gameTime, ref _gameData);
-            UpdateMoveSprite(gameTime, i);
-        }
-        UpdateHandleObjectsToBeDrawn(gameTime);
-    }
     private void UpdateOffTickHandleCollisionsAndMovement(GameTime gameTime)
     {
         List<SpriteBase> deadSpritesToRemove = new List<SpriteBase>();
 
-        //CollisionDetection
         //Border Collision Detection
         for (int i = 0; i < _gameData.Sprites.Count; i++)
         {
@@ -385,62 +369,12 @@ public class Game1 : Game
                     {
                         if (_gameData.Sprites[i] != _gameData.MapGridData[p.X, p.Y].Sprites[k] && _gameData.Sprites[i].Bounds.Intersects(_gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds))
                         {
-                            //Vector2 offset = CollisionDetection.GetIntersectionDepth(_gameData.Sprites[i].Bounds, _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds);
 
-                            //_gameData.Sprites[i].Position = new Vector2(_gameData.Sprites[i].Position.X + offset.X, _gameData.Sprites[i].Position.Y + offset.Y);
-
-                            //if (Math.Abs(offset.X) < Math.Abs(offset.Y))
-                            //{
-                            //    _gameData.Sprites[i].Rotation = (((float)Math.PI * 2) - _gameData.Sprites[i].Rotation);
-                            //}
-                            //else
-                            //{
-                            //    _gameData.Sprites[i].Rotation = (((float)Math.PI) - _gameData.Sprites[i].Rotation);
-                            //}
-
-                            ////Change rotation on object collision just for a sample
-                            //if ((_gameData.Sprites[i].Bounds.X > _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.X && _gameData.Sprites[i].Bounds.Left <= _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Right))
-                            //{
-                            //    //_gameData.Sprites[i].Position = new Vector2(_gameData.Sprites[i].Position.X + (_gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Right - _gameData.Sprites[i].Bounds.Left), _gameData.Sprites[i].Position.Y);
-                            //    _gameData.Sprites[i].Rotation = (((float)Math.PI * 2) - _gameData.Sprites[i].Rotation);
-                            //}
-                            //else if ((_gameData.Sprites[i].Bounds.X < _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.X && _gameData.Sprites[i].Bounds.Right >= _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Left))
-                            //{
-                            //    //_gameData.Sprites[i].Position = new Vector2(_gameData.Sprites[i].Position.X - (_gameData.Sprites[i].Bounds.Right - _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Left), _gameData.Sprites[i].Position.Y);
-                            //    _gameData.Sprites[i].Rotation = (((float)Math.PI * 2) - _gameData.Sprites[i].Rotation);
-                            //}
-
-                            //if ((_gameData.Sprites[i].Bounds.Y > _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Y && _gameData.Sprites[i].Bounds.Top <= _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Bottom) ||
-                            //    (_gameData.Sprites[i].Bounds.Y < _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Y && _gameData.Sprites[i].Bounds.Bottom >= _gameData.MapGridData[p.X, p.Y].Sprites[k].Bounds.Top))
-                            //{
-                            //    _gameData.Sprites[i].Rotation = (((float)Math.PI) - _gameData.Sprites[i].Rotation);
-                            //}
-
-                            //if (_gameData.Sprites[i].Position.X - (_gameData.Sprites[i].Texture.Width / 2) <= 0 || _gameData.Sprites[i].Position.X + (_gameData.Sprites[i].Texture.Width / 2) >= _gameData.Settings.WorldSize)
-                            //{
-                            //    if (_gameData.Sprites[i].Direction.X >= 0 && _gameData.Sprites[i].Direction.Y >= 0 ||
-                            //        _gameData.Sprites[i].Direction.X >= 0 && _gameData.Sprites[i].Direction.Y < 0 ||
-                            //        _gameData.Sprites[i].Direction.X < 0 && _gameData.Sprites[i].Direction.Y >= 0 ||
-                            //        _gameData.Sprites[i].Direction.X < 0 && _gameData.Sprites[i].Direction.Y < 0)
-                            //    {
-                            //        _gameData.Sprites[i].Rotation = (((float)Math.PI * 2) - _gameData.Sprites[i].Rotation);
-                            //    }
-                            //}
-                            //if (_gameData.Sprites[i].Position.Y - (_gameData.Sprites[i].Texture.Height / 2) <= 0 || _gameData.Sprites[i].Position.Y + (_gameData.Sprites[i].Texture.Height / 2) >= _gameData.Settings.WorldSize)
-                            //{
-                            //    if (_gameData.Sprites[i].Direction.X >= 0 && _gameData.Sprites[i].Direction.Y >= 0 ||
-                            //        _gameData.Sprites[i].Direction.X >= 0 && _gameData.Sprites[i].Direction.Y < 0 ||
-                            //        _gameData.Sprites[i].Direction.X < 0 && _gameData.Sprites[i].Direction.Y >= 0 ||
-                            //        _gameData.Sprites[i].Direction.X < 0 && _gameData.Sprites[i].Direction.Y < 0)
-                            //    {
-                            //        _gameData.Sprites[i].Rotation = (((float)Math.PI) - _gameData.Sprites[i].Rotation);
-                            //    }
-                            //}
                         }
                     }
                 }
 
-                UpdateMoveSprite(gameTime, i);
+                _gameData.Sprites[i].Update(gameTime, ref _gameData); //Movement done in Update
             }
         }
 
@@ -450,32 +384,14 @@ public class Game1 : Game
             _gameData.Sprites.Remove(c);
         }
     }
-    private void UpdateMoveSprite(GameTime gameTime, int spriteIndex)
-    {
-        _gameData.Sprites[spriteIndex].Update(gameTime, ref _gameData); //Movement done in Update
-    }
-    private void UpdateAnimations(GameTime gameTime)
+    private void UpdateOffTickAnimations(GameTime gameTime)
     {
         for (int i = 0; i < _gameData.Animations.Count(); i++)
         {
             _gameData.Animations[i].Update(gameTime);
         }
     }
-    private void UpdateHandleObjectsToBeDrawn(GameTime gameTime)
-    {
-        for (int i = 0; i < _gameData.Sprites.Count(); i++)
-        {
-            if (_gameData.Sprites[i].IsAlive && Global.Camera.VisibleArea.Contains(_gameData.Sprites[i].Position))
-            {
-                _gameData.Sprites[i].DrawObject = true;
-            }
-            else
-            {
-                _gameData.Sprites[i].DrawObject = false;
-            }
-        }
-    } //Increase FPS by not drawing offscreen objects
-    private void UpdateHandleCameraChange(GameTime gameTime) //Unimplemented
+    private void UpdateOffTickHandleCameraChange(GameTime gameTime) //Unimplemented
     {
         if (Global.Camera.CameraChange)
         {
@@ -483,6 +399,13 @@ public class Game1 : Game
 
             //Add logic on Camera Change
         }
+    }
+
+    //Update OffTickInterval functions
+    private void UpdateOffTickInterval(GameTime gameTime)
+    {
+        _elapsedTicksSinceIntervalProcessing = 0;
+        UpdateOffTickIntervalCleanupAnimations(gameTime);
     }
     private void UpdateOffTickIntervalCleanupAnimations(GameTime gameTime)
     {
@@ -497,7 +420,7 @@ public class Game1 : Game
         }
     }
 
-    //Draw functions
+    //Draw World functions
     public void DrawWorldObjects()
     {
         _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null, Global.Camera.TranslationMatrix);
@@ -507,13 +430,6 @@ public class Game1 : Game
         DrawDebugData();
         _spriteBatch.End();
     }
-    private void DrawHUD()
-    {
-        _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
-        DrawFps();
-        _spriteBatch.End();
-    }
-
     private void DrawSprites()
     {
         //Draw the stationary objects first
@@ -558,10 +474,6 @@ public class Game1 : Game
         _spriteBatch.Draw(_borders.Texture, _borders.TopWallRectangle, Color.SaddleBrown);
         _spriteBatch.Draw(_borders.Texture, _borders.BottomWallRectangle, Color.SaddleBrown);
     }
-    private void DrawFps()
-    {
-        _spriteBatch.DrawString(_diagFont, "FPS: " + _fps, new Vector2(10, 10), Color.Black); //FPS Counter in top left corner
-    }
     private void DrawDebugData()
     {
         if (ENABLE_DEBUG)
@@ -576,6 +488,18 @@ public class Game1 : Game
                 _spriteBatch.Draw(_gameData.Textures.WhitePixel, new Rectangle(0, i * _gameData.Settings.GridCellSize, _gameData.Settings.WorldSize, 1), Color.Red);
             }
         }
+    }
+
+    //Draw HUD
+    private void DrawHUD()
+    {
+        _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
+        DrawFps();
+        _spriteBatch.End();
+    }
+    private void DrawFps()
+    {
+        _spriteBatch.DrawString(_diagFont, "FPS: " + _fps, new Vector2(10, 10), Color.Black); //FPS Counter in top left corner
     }
 
     //Debug Test functions
@@ -727,59 +651,56 @@ public class Game1 : Game
     {
         //Hunter
 
-        SpriteBase sprite;
+        Animal hunter = new Animal();
+        hunter.AnimalAi = new Ai(hunter);
+        hunter.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+        hunter.Scale = (float)(_rand.NextDouble() * 5);
+        hunter.Color = Color.Black;
+        hunter.ScreenDepth = 1f;
 
-        sprite = new Animal();
-        ((Animal)sprite).Ai = new Ai(sprite);
-        sprite.Texture = BuildSampleImage(_graphics.GraphicsDevice);
-        sprite.Scale = (float)(_rand.NextDouble() * 5);
-        sprite.Color = Color.Black;
-        sprite.ScreenDepth = 1f;
+        if (hunter.Scale < 4f)
+            hunter.Scale = 4f;
 
-        if (sprite.Scale < 4f)
-            sprite.Scale = 4f;
-
-        sprite.IsAlive = true;
-        sprite.WorldSize = _gameData.Settings.WorldSize;
-        sprite.Speed = 400f;
-        sprite.Rotation = MathHelper.ToRadians(88);
-        sprite.Position = new Vector2(_rand.Next((int)sprite.AdjustedSize.X, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.X), _rand.Next((int)sprite.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.Y));
-        sprite.GetGridPositionsForSpriteBase(_gameData);
-        sprite.IsMoving = true;
+        hunter.IsAlive = true;
+        hunter.WorldSize = _gameData.Settings.WorldSize;
+        hunter.Speed = 400f;
+        hunter.Rotation = MathHelper.ToRadians(88);
+        hunter.Position = new Vector2(_rand.Next((int)hunter.AdjustedSize.X, _gameData.Settings.WorldSize - (int)hunter.AdjustedSize.X), _rand.Next((int)hunter.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)hunter.AdjustedSize.Y));
+        hunter.GetGridPositionsForSpriteBase(_gameData);
 
         //Debug Properties
-        sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
-        sprite.DebugFont = _diagFont;
+        hunter.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+        hunter.DebugFont = _diagFont;
 
-        _gameData.Sprites.Add(sprite);
-        _gameData.AddSpriteToGrid(sprite);
+        _gameData.Sprites.Add(hunter);
+        _gameData.AddSpriteToGrid(hunter);
 
-        //Hunted
+        //Prey
         for (int i = 0; i < 200; i++)
         {
-            sprite = new Truck();
-            sprite.Texture = BuildSampleImage(_graphics.GraphicsDevice);
-            sprite.Scale = (float)(_rand.NextDouble() * 2);
-            sprite.Color = new Color((float)_rand.NextDouble(), (float)_rand.NextDouble(), (float)_rand.NextDouble());
-            sprite.ScreenDepth = 1f;
+            Truck prey = new Truck();
+            prey.Texture = BuildSampleImage(_graphics.GraphicsDevice);
+            prey.Scale = (float)(_rand.NextDouble() * 2);
+            prey.Color = new Color((float)_rand.NextDouble(), (float)_rand.NextDouble(), (float)_rand.NextDouble());
+            prey.ScreenDepth = 1f;
 
-            if (sprite.Scale < 0.5f)
-                sprite.Scale = 0.5f;
+            if (prey.Scale < 0.5f)
+                prey.Scale = 0.5f;
 
-            sprite.IsAlive = true;
-            sprite.WorldSize = _gameData.Settings.WorldSize;
-            sprite.Speed = 450f;
-            sprite.Rotation = MathHelper.ToRadians(_rand.Next(0, 360));
-            sprite.Position = new Vector2(_rand.Next((int)sprite.AdjustedSize.X, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.X), _rand.Next((int)sprite.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)sprite.AdjustedSize.Y));
-            sprite.GetGridPositionsForSpriteBase(_gameData);
-            sprite.IsMoving = true;
+            prey.IsAlive = true;
+            prey.WorldSize = _gameData.Settings.WorldSize;
+            prey.Speed = 450f;
+            prey.Rotation = MathHelper.ToRadians(_rand.Next(0, 360));
+            prey.Position = new Vector2(_rand.Next((int)prey.AdjustedSize.X, _gameData.Settings.WorldSize - (int)prey.AdjustedSize.X), _rand.Next((int)prey.AdjustedSize.Y, _gameData.Settings.WorldSize - (int)prey.AdjustedSize.Y));
+            prey.GetGridPositionsForSpriteBase(_gameData);
+            prey.IsMoving = true; //This Object is dumb, need to manually set IsMoving to true
 
             //Debug Properties
-            sprite.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
-            sprite.DebugFont = _diagFont;
+            prey.WhiteTexture = _gameData.Textures.WhitePixel; //Used to create debug information
+            prey.DebugFont = _diagFont;
 
-            _gameData.Sprites.Add(sprite);
-            _gameData.AddSpriteToGrid(sprite);
+            _gameData.Sprites.Add(prey);
+            _gameData.AddSpriteToGrid(prey);
         }
     }
     private Texture2D BuildSampleImage(GraphicsDevice device)

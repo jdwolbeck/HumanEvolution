@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Ai
+public class Ai : IAi
 {
-    public SpriteBase ThinkingAnimal { get; set; }
+    public Animal ThinkingAnimal { get; set; }
 
-    public Ai(SpriteBase animalIn)
+    public Ai(Animal animalIn)
     {
         ThinkingAnimal = animalIn;
     }
@@ -21,7 +21,8 @@ public class Ai
 
         for (int i = 0; i < gameData.Sprites.Count; i++)
         {
-            if (gameData.Sprites[i] != ThinkingAnimal && gameData.Sprites[i].IsAlive)
+            //If we ever end up needing to reference a value not on SpriteBase then this code should change to cast the sprite as Animal then check if the result is null or not
+            if (gameData.Sprites[i] != ThinkingAnimal && gameData.Sprites[i].IsAlive && gameData.Sprites[i] is ILiving)
             {
                 double curDistance = Math.Sqrt(
                 (gameData.Sprites[i].Position.X - ThinkingAnimal.Position.X) * (gameData.Sprites[i].Position.X - ThinkingAnimal.Position.X) +
@@ -37,7 +38,7 @@ public class Ai
 
         if (closestIndex >= 0)
         {
-            returnPath.Add(Animal.PositionToRectangle(gameData.Sprites[closestIndex].Position));
+            returnPath.Add(RectangleF.PositionToRectangle(gameData.Sprites[closestIndex].Position));
         }
 
         return returnPath;

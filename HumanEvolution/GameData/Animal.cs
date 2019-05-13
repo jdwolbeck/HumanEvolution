@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Animal : SpriteBase
+public class Animal : SpriteBase, ISmartAnimal, ILiving
 {
     public override bool IsMovable { get; set; } = true;
-    public Ai Ai { get; set; }
+    public Ai AnimalAi { get; set; }
     public List<RectangleF> Path { get; set; }
     public RectangleF FinalDestination { get; set; }
     public RectangleF CurrentDesination { get; set; }
@@ -26,34 +26,39 @@ public class Animal : SpriteBase
 
     public override void UpdateTick(GameTime gameTime, ref GameData gameData)
     {
-        List<RectangleF> newPaths = Ai.GetPath(gameData);
+        List<RectangleF> newPaths = AnimalAi.GetPath(gameData);
 
         if (CurrentPathCompare != PathsToString(newPaths))
         {
-            Path = Ai.GetPath(gameData);
-            NewPathCalc();
-            IsMoving = true;
+            Path = AnimalAi.GetPath(gameData);
+
+            if (Path.Count() > 0) //Only set the animal moving if we came back with a new path
+            {
+                NewPathCalc();
+            }
         }
     }
     public override void UpdateMovement(GameTime gameTime, ref GameData gameData)
     {
-        IsMoving = false;
-        if(Path.Count > 0)
+        if (Path.Count > 0)
         {
-            if(CurrentDesination == RectangleF.Empty)
+            if (CurrentDesination == RectangleF.Empty)
             {
                 NewPathCalc();
             }
 
             Position += Direction * (Speed * (float)gameTime.ElapsedGameTime.TotalSeconds);
             ElapsedTravelTime += gameTime.ElapsedGameTime.TotalSeconds;
-            IsMoving = true;
 
             if (CurrentDesination.Intersects(Bounds) || ElapsedTravelTime > (EstimatedTimeToDestination * 1.2))
             {
                 Path.RemoveAt(0);
                 CurrentDesination = RectangleF.Empty;
             }
+        }
+        else
+        {
+            IsMoving = false; //No items in the Path list, disable moving
         }
     }
     public void NewPathCalc()
@@ -63,6 +68,7 @@ public class Animal : SpriteBase
         EstimatedTimeToDestination = (Math.Sqrt((CurrentDesination.X - Position.X) * (CurrentDesination.X - Position.X) + (CurrentDesination.Y - Position.Y) * (CurrentDesination.Y - Position.Y))) / Speed;
         ElapsedTravelTime = 0;
         CurrentPathCompare = PathsToString(Path);
+        IsMoving = true;
     }
     public string PathsToString(List<RectangleF> pathsIn)
     {
@@ -74,10 +80,5 @@ public class Animal : SpriteBase
         }
 
         return pathConcat;
-    }
-
-    public static RectangleF PositionToRectangle(Vector2 position)
-    {
-        return new RectangleF(position.X, position.Y, 10, 10);
     }
 }
