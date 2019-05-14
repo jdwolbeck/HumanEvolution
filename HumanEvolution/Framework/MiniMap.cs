@@ -68,7 +68,7 @@ public class MiniMap
         BackgroundTargetRectangle = new Rectangle((int)Math.Round(PositionCenter.X, 0) - (totalWidth / 2), (int)Math.Round(PositionCenter.Y, 0) - (totalHeight / 2), totalWidth, totalHeight);
         PositionHasBeenSet = true;
     }
-    public void UpdateMap(GameData gameData, Rectangle viewPortSize)
+    public void UpdateCamera(Rectangle viewPortSize)
     {
         if (PositionHasBeenSet)
         {
@@ -79,7 +79,12 @@ public class MiniMap
             ViewPortRight = new Rectangle(ViewPort.Right + viewPortThickness, ViewPort.Y - viewPortThickness, viewPortThickness, ViewPort.Height + (viewPortThickness * 2));
             ViewPortTop = new Rectangle(ViewPort.X - viewPortThickness, ViewPort.Y - viewPortThickness, ViewPort.Width + (viewPortThickness * 2), viewPortThickness);
             ViewPortBottom = new Rectangle(ViewPort.X - viewPortThickness, ViewPort.Y + ViewPort.Height + viewPortThickness, ViewPort.Width + (viewPortThickness * 2), viewPortThickness);
-
+        }
+    }
+    public void UpdateMap(GameData gameData)
+    {
+        if (PositionHasBeenSet)
+        {
             Characters.Clear();
             Buildings.Clear();
 

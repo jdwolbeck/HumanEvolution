@@ -260,8 +260,7 @@ public abstract class SpriteBase
         string gridPosition = String.Empty;
         foreach (Point p in gridPositions)
         {
-            //gridPosition += p.X + "," + p.Y + " ";
-            gridPosition = String.Join(",", new String[] { p.X.ToString(), p.Y.ToString(), " " }); //String Join for Efficiency 
+            gridPosition += p.X + "," + p.Y + " ";
         }
 
         OldGridPositionsForCompare = CurrentGridPositionsForCompare;

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 /// <summary>
 /// This is the main type for your game.
@@ -20,6 +21,8 @@ public class Game1 : Game
     private GameData _gameData;
     private Borders _borders;
     private Random _rand;
+    private Thread _AiThread;
+    private AiThread _AiThreadClass;
     List<int> _fpsTotals;
     private int _frames;
     private double _elapsedSeconds;
@@ -54,6 +57,12 @@ public class Game1 : Game
     }
     protected override void LoadContent()
     {
+        if (_AiThread != null && _AiThread.IsAlive)
+        {
+            _AiThread.Abort();
+            Thread.Sleep(500); //Sleep for half a second and wait for the thread to end
+        }
+
         //Load settings at the beginning
         _gameData = new GameData();
         _gameData.Settings = SettingsHelper.ReadSettings("Settings.json");
@@ -136,6 +145,10 @@ public class Game1 : Game
         _gameData.MiniMap = new MiniMap(_gameData.Textures.WhitePixel, _gameData.Textures.MiniMapFrame, 20);
         _gameData.MiniMap.SetPosition(_graphics.GraphicsDevice, new Vector2(_gameData.Settings.WorldSize, _gameData.Settings.WorldSize), Anchor.BottomRight, new Vector2(200, 200));
 
+        _AiThreadClass = new AiThread(_gameData, _rand);
+        _AiThread = new Thread(new ThreadStart(_AiThreadClass.Start));
+        _AiThread.Start();
+
         //SpawnScenerioTestObjs();
         SpawnScenerioHumanObey();
 
@@ -151,6 +164,23 @@ public class Game1 : Game
     protected override void UnloadContent()
     {
         // TODO: Unload any non ContentManager content here
+    }
+    protected override void OnExiting(object sender, EventArgs args)
+    {
+        bool needSleep = false;
+
+        if (_AiThread != null && _AiThread.IsAlive)
+        {
+            _AiThread.Abort();
+            needSleep = true;
+        }
+
+        if (needSleep)
+        {
+            Thread.Sleep(500);
+        }
+
+        base.OnExiting(sender, args);
     }
     protected override void Update(GameTime gameTime)
     {
@@ -201,7 +231,7 @@ public class Game1 : Game
             _fps = _frames;
             _frames = 0;
             _elapsedSeconds = 0;
-            _fpsTotals.Add(_fps);
+            //_fpsTotals.Add(_fps);
 
             //TODO remove this later
             ////Used for Comparing FPS in Dev
@@ -269,7 +299,7 @@ public class Game1 : Game
     } //Increase FPS by not drawing offscreen objects
     private void UpdateTickMiniMap(GameTime gameTime)
     {
-        _gameData.MiniMap.UpdateMap(_gameData, Global.Camera.VisibleArea);
+        _gameData.MiniMap.UpdateMap(_gameData);
     }
 
     //Update OffTick functions
@@ -277,6 +307,7 @@ public class Game1 : Game
     {
         UpdateOffTickHandleCollisionsAndMovement(gameTime); //Collisions And Movement
         UpdateOffTickAnimations(gameTime); //Run animation
+        UpdateOffTickHandleCameraChange(gameTime);
 
         //Every second interval processing only when it is not a TICK. When things only need to be updated once every X seconds
         if (_elapsedTicksSinceIntervalProcessing >= TICKS_PER_SECOND * 5)
@@ -381,13 +412,12 @@ public class Game1 : Game
             _gameData.Animations[i].Update(gameTime);
         }
     }
-    private void UpdateOffTickHandleCameraChange(GameTime gameTime) //Unimplemented
+    private void UpdateOffTickHandleCameraChange(GameTime gameTime)
     {
         if (Global.Camera.CameraChange)
         {
             Global.Camera.CameraChange = false;
-
-            //Add logic on Camera Change
+            _gameData.MiniMap.UpdateCamera(Global.Camera.VisibleArea);
         }
     }
 
@@ -404,6 +434,7 @@ public class Game1 : Game
         {
             if (!_gameData.Sprites[i].IsAlive)
             {
+                _gameData.RemoveSpriteFromGrid(_gameData.Sprites[i], _gameData.Sprites[i].GridPositions);
                 _gameData.AddDeadSpriteToList(_gameData.Sprites[i]);
                 _gameData.Sprites.Remove(_gameData.Sprites[i]);
             }
@@ -661,6 +692,7 @@ public class Game1 : Game
         {
             Wolf hunter = new Wolf();
             hunter.AnimalAi = new AiChase(hunter);
+            hunter.ThinkingCooldownMs = 500;
             hunter.Texture = BuildSampleImage(_graphics.GraphicsDevice);
             hunter.MiniMapTexture = _gameData.Textures.MiniMapObjectDiamondTexture;
             hunter.MiniMapScale = 1f;
@@ -689,7 +721,7 @@ public class Game1 : Game
         //***********************
         //Prey
         //***********************
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < 3000; i++)
         {
             Truck prey = new Truck();
             prey.Texture = BuildSampleImage(_graphics.GraphicsDevice);
@@ -721,7 +753,7 @@ public class Game1 : Game
         //***********************
         //Buildings
         //***********************
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < 0; i++)
         {
             Building building = new Building();
             building.Texture = BuildSampleImageBuilding(_graphics.GraphicsDevice);

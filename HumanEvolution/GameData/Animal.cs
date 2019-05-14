@@ -15,6 +15,8 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
     public double EstimatedTimeToDestination { get; set; }
     public double ElapsedTravelTime { get; set; }
     public string CurrentPathCompare { get; set; }
+    public double ThinkingCooldownMs { get; set; }
+    public double ElapsedTimeSinceLastThought { get; set; }
 
     public Animal()
     {
@@ -22,21 +24,17 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
         FinalDestination = RectangleF.Empty;
         Path = new List<RectangleF>();
         ElapsedTravelTime = 0;
+        ElapsedTimeSinceLastThought = 0;
     }
 
     public override void UpdateTick(GameTime gameTime, ref GameData gameData)
     {
-        List<RectangleF> newPaths = AnimalAi.GetPath(gameData);
+    }
+    public override void Update(GameTime gameTime, ref GameData gameData)
+    {
+        ElapsedTimeSinceLastThought += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-        if (CurrentPathCompare != PathsToString(newPaths))
-        {
-            Path = AnimalAi.GetPath(gameData);
-
-            if (Path.Count() > 0) //Only set the animal moving if we came back with a new path
-            {
-                NewPathCalc();
-            }
-        }
+        base.Update(gameTime, ref gameData);
     }
     public override void UpdateMovement(GameTime gameTime, ref GameData gameData)
     {
@@ -61,13 +59,16 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
             IsMoving = false; //No items in the Path list, disable moving
         }
     }
-    public void NewPathCalc()
+    public void NewPathCalc(string currentPathCompareIn = "") //Default the parameter to empty string. In the AiThread we will pass it in since we calculate it to compare. Save on building the string
     {
         CurrentDesination = Path[0];
         Rotation = (float)Math.Atan2((CurrentDesination.Y - Position.Y), (CurrentDesination.X - Position.X)) + MathHelper.ToRadians(90);
         EstimatedTimeToDestination = (Math.Sqrt((CurrentDesination.X - Position.X) * (CurrentDesination.X - Position.X) + (CurrentDesination.Y - Position.Y) * (CurrentDesination.Y - Position.Y))) / Speed;
         ElapsedTravelTime = 0;
-        CurrentPathCompare = PathsToString(Path);
+        if (String.IsNullOrEmpty(currentPathCompareIn))
+        {
+            CurrentPathCompare = PathsToString(Path);
+        }
         IsMoving = true;
     }
     public string PathsToString(List<RectangleF> pathsIn)

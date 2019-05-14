@@ -22,7 +22,7 @@ public class AiChase : Ai, IAi
         for (int i = 0; i < gameData.Sprites.Count; i++)
         {
             //If we ever end up needing to reference a value not on SpriteBase then this code should change to cast the sprite as Animal then check if the result is null or not
-            if (gameData.Sprites[i] != ThinkingAnimal && gameData.Sprites[i].IsAlive && !(gameData.Sprites[i] is Wolf))
+            if (gameData.Sprites[i] != ThinkingAnimal && gameData.Sprites[i].IsAlive && gameData.Sprites[i] is ILiving && !(gameData.Sprites[i] is Wolf))
             {
                 double curDistance = Math.Sqrt(
                 (gameData.Sprites[i].Position.X - ThinkingAnimal.Position.X) * (gameData.Sprites[i].Position.X - ThinkingAnimal.Position.X) +
