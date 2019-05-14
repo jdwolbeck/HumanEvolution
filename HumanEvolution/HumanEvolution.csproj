@@ -46,7 +46,7 @@
     <Compile Include="DataCollection\JsonHelper.cs" />
     <Compile Include="DataCollection\MapStatistics.cs" />
     <Compile Include="DataCollection\SettingsHelper.cs" />
-    <Compile Include="Framework\AiChaseIntercept.cs" />
+    <Compile Include="GameData\AiChaseIntercept.cs" />
     <Compile Include="Framework\AiThread.cs" />
     <Compile Include="Framework\Animation\AnimationBase.cs" />
     <Compile Include="Framework\Animation\CollisionParticleAnimationFactory.cs" />
