@@ -688,7 +688,7 @@ public class Game1 : Game
         //***********************
         //Hunter
         //***********************
-        for (int i = 0; i < 200; i++)
+        for (int i = 0; i < 2000; i++)
         {
             Wolf hunter = new Wolf();
             hunter.AnimalAi = new AiChase(hunter);
@@ -721,7 +721,7 @@ public class Game1 : Game
         //***********************
         //Prey
         //***********************
-        for (int i = 0; i < 3000; i++)
+        for (int i = 0; i < 1000; i++)
         {
             Truck prey = new Truck();
             prey.Texture = BuildSampleImage(_graphics.GraphicsDevice);

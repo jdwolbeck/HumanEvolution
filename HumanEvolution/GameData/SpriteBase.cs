@@ -268,6 +268,11 @@ public abstract class SpriteBase
 
         GridPositions = gridPositions;
     }
+    public void SetRotationAndDirection(float rotation, Vector2 direction) //Set the rotation and direction directly. The Rotation setter does the calculation for Direction and sometimes we want to avoid doing this calc in the main thread
+    {
+        _rotation = rotation;
+        Direction = direction;
+    }
 
     public virtual void UpdateTick(GameTime gameTime, ref GameData gameData)
     {

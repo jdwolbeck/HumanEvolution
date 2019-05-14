@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,9 +14,9 @@ public class AiChase : Ai, IAi
         ThinkingAnimal = animalIn;
     }
 
-    public override List<RectangleF> GetPath(GameData gameData)
+    public override List<PathLocation> GetPath(GameData gameData)
     {
-        List<RectangleF> returnPath = new List<RectangleF>();
+        List<PathLocation> returnPath = new List<PathLocation>();
         int closestIndex = -1;
         double closestDistance = 999999999.0;
 
@@ -38,7 +39,16 @@ public class AiChase : Ai, IAi
 
         if (closestIndex >= 0)
         {
-            returnPath.Add(RectangleF.PositionToRectangle(gameData.Sprites[closestIndex].Position));
+            PathLocation path = new PathLocation();
+
+            //Determine the position, sprite rotation, estimated time and direction. This prevents the main thread from having to do all these calculations
+            path.Position = RectangleF.PositionToRectangle(gameData.Sprites[closestIndex].Position);
+            path.Rotation = (float)Math.Atan2((path.Position.Y - ThinkingAnimal.Position.Y), (path.Position.X - ThinkingAnimal.Position.X)) + MathHelper.ToRadians(90);
+            path.EstimatedTime = (Math.Sqrt((path.Position.X - ThinkingAnimal.Position.X) * (path.Position.X - ThinkingAnimal.Position.X) + (path.Position.Y - ThinkingAnimal.Position.Y) * (path.Position.Y - ThinkingAnimal.Position.Y))) / ThinkingAnimal.Speed;
+            path.Direction = new Vector2((float)Math.Cos(path.Rotation - MathHelper.ToRadians(90)), (float)Math.Sin(path.Rotation - MathHelper.ToRadians(90)));
+            path.Direction.Normalize();
+
+            returnPath.Add(path);
         }
 
         return returnPath;

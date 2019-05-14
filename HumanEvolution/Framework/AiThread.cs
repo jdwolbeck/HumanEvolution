@@ -38,8 +38,8 @@ public class AiThread
                     {
                         if (animal.ElapsedTimeSinceLastThought >= animal.ThinkingCooldownMs && animal.Path.Count() == 0)
                         {
-                            List<RectangleF> newPaths = animal.AnimalAi.GetPath(_gameData);
-                            string newCompare = animal.PathsToString(newPaths);
+                            List<PathLocation> newPaths = animal.AnimalAi.GetPath(_gameData);
+                            string newCompare = Ai.PathsToString(newPaths);
 
                             //animal.Path.Add(RectangleF.PositionToRectangle(new Vector2(_rand.Next(0, 9900), _rand.Next(0, 9900))));
                             //animal.NewPathCalc();

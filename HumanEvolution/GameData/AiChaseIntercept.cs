@@ -10,9 +10,9 @@ public class AiChaseIntercept : Ai
     {
     }
 
-    public override List<RectangleF> GetPath(GameData gameData)
+    public override List<PathLocation> GetPath(GameData gameData)
     {
-        List<RectangleF> returnpath = new List<RectangleF>();
+        List<PathLocation> returnpath = new List<PathLocation>();
 
 
 

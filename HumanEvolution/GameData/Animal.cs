@@ -9,9 +9,9 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
 {
     public override bool IsMovable { get; set; } = true;
     public Ai AnimalAi { get; set; }
-    public List<RectangleF> Path { get; set; }
-    public RectangleF FinalDestination { get; set; }
-    public RectangleF CurrentDesination { get; set; }
+    public List<PathLocation> Path { get; set; }
+    public PathLocation FinalDestination { get; set; }
+    public PathLocation CurrentDesination { get; set; }
     public double EstimatedTimeToDestination { get; set; }
     public double ElapsedTravelTime { get; set; }
     public string CurrentPathCompare { get; set; }
@@ -20,9 +20,9 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
 
     public Animal()
     {
-        CurrentDesination = RectangleF.Empty;
-        FinalDestination = RectangleF.Empty;
-        Path = new List<RectangleF>();
+        CurrentDesination = new PathLocation() { Position = RectangleF.Empty };
+        FinalDestination = new PathLocation() { Position = RectangleF.Empty };
+        Path = new List<PathLocation>();
         ElapsedTravelTime = 0;
         ElapsedTimeSinceLastThought = 0;
     }
@@ -40,7 +40,7 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
     {
         if (Path.Count > 0)
         {
-            if (CurrentDesination == RectangleF.Empty)
+            if (CurrentDesination.Position == RectangleF.Empty)
             {
                 NewPathCalc();
             }
@@ -48,10 +48,10 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
             Position += Direction * (Speed * (float)gameTime.ElapsedGameTime.TotalSeconds);
             ElapsedTravelTime += gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (CurrentDesination.Intersects(Bounds) || ElapsedTravelTime > (EstimatedTimeToDestination * 1.2))
+            if (CurrentDesination.Position.Intersects(Bounds) || ElapsedTravelTime > (EstimatedTimeToDestination * 1.2))
             {
                 Path.RemoveAt(0);
-                CurrentDesination = RectangleF.Empty;
+                CurrentDesination = new PathLocation() { Position = RectangleF.Empty };
             }
         }
         else
@@ -62,24 +62,13 @@ public class Animal : SpriteBase, ISmartAnimal, ILiving
     public void NewPathCalc(string currentPathCompareIn = "") //Default the parameter to empty string. In the AiThread we will pass it in since we calculate it to compare. Save on building the string
     {
         CurrentDesination = Path[0];
-        Rotation = (float)Math.Atan2((CurrentDesination.Y - Position.Y), (CurrentDesination.X - Position.X)) + MathHelper.ToRadians(90);
-        EstimatedTimeToDestination = (Math.Sqrt((CurrentDesination.X - Position.X) * (CurrentDesination.X - Position.X) + (CurrentDesination.Y - Position.Y) * (CurrentDesination.Y - Position.Y))) / Speed;
+        SetRotationAndDirection(Path[0].Rotation, Path[0].Direction); //Use this function so that the SpriteBase Rotation setter does not run the Direction calculation
+        EstimatedTimeToDestination = Path[0].EstimatedTime;
         ElapsedTravelTime = 0;
         if (String.IsNullOrEmpty(currentPathCompareIn))
         {
-            CurrentPathCompare = PathsToString(Path);
+            CurrentPathCompare = Ai.PathsToString(Path);
         }
         IsMoving = true;
-    }
-    public string PathsToString(List<RectangleF> pathsIn)
-    {
-        string pathConcat = String.Empty;
-
-        foreach (RectangleF r in pathsIn)
-        {
-            pathConcat += r.ToString();
-        }
-
-        return pathConcat;
     }
 }

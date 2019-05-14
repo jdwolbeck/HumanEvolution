@@ -73,6 +73,7 @@
     <Compile Include="GameData\Interfaces\IAi.cs" />
     <Compile Include="GameData\Interfaces\ILiving.cs" />
     <Compile Include="GameData\Interfaces\ISmartAnimal.cs" />
+    <Compile Include="GameData\PathLocation.cs" />
     <Compile Include="GameData\Player.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Framework\GridData.cs" />

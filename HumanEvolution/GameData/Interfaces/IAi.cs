@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 public interface IAi
 {
     Animal ThinkingAnimal { get; set; }
-    List<RectangleF> GetPath(GameData gameData);
+    List<PathLocation> GetPath(GameData gameData);
 }
